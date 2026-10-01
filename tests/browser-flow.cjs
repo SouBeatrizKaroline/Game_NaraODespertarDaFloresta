@@ -40,6 +40,7 @@ const screenshotDir=process.env.NARA_SCREENSHOTS;
     for(let index=0;index<5;index++){
       const result=await page.evaluate(index=>{
         const g=LumiGame.instance;if(g.level.index!==index)throw Error('Wrong chapter');
+        for(const enemy of g.level.enemies){enemy.defeated=true;enemy.fade=0;}
         const cp=g.level.checkpoints[1];g.player.x=cp.x+3;g.player.y=456;g.player.vy=0;g.update(1/60);
         g.player.y=600;g.update(1/60);for(let n=0;n<60;n++)g.update(1/60);
         if(g.player.isRespawning||Math.abs(g.player.x-(cp.x+3))>1)throw Error('Respawn failed');
@@ -49,7 +50,7 @@ const screenshotDir=process.env.NARA_SCREENSHOTS;
       assert.deepEqual(result,{count:'4/4',saved:4});
       await shot('capitulo-'+(index+1));
       if(index===2){await page.reload();await page.getByRole('button',{name:'Continuar jornada',exact:true}).click();await page.getByRole('button',{name:'Entrar na floresta →',exact:true}).click();await page.evaluate(()=>LumiGame.instance.isRunning=false);assert.equal(await page.locator('#hud-main-stars').textContent(),'4/4');assert.equal(await page.evaluate(()=>LumiGame.instance.reducedMotion),true);}
-      await page.evaluate(()=>{const g=LumiGame.instance;g.player.x=g.level.gate.x-19;g.player.y=456;g.player.vx=g.player.vy=0;g.update(1/60);});
+      await page.evaluate(()=>{const g=LumiGame.instance;for(const enemy of g.level.enemies){enemy.defeated=true;enemy.fade=0;}g.player.x=g.level.gate.x-19;g.player.y=456;g.player.vx=g.player.vy=0;g.update(1/60);});
       if(index<4){assert.equal(await page.evaluate(()=>LumiGame.instance.state),'chapter-complete');await page.getByRole('button',{name:'Seguir a luz →',exact:true}).click();await page.getByRole('button',{name:'Entrar na floresta →',exact:true}).click();}
     }
     await page.evaluate(()=>{const g=LumiGame.instance;for(let i=0;i<300;i++)g.update(1/60);g.draw();});

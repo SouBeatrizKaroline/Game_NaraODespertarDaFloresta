@@ -28,6 +28,7 @@
       <div class="hud-top-bar">
         <!-- Star Counters Group -->
         <div class="hud-counters-group">
+          <div id="hud-health" class="hud-health" role="img" aria-label="3 de 3 corações"><span>♥</span><span>♥</span><span>♥</span></div>
           <!-- Main Stars Counter -->
           <div class="hud-counter-pill" id="hud-pill-main" title="Fragmentos de Estrela">
             <span class="hud-icon star-main">⭐</span>
@@ -69,7 +70,8 @@
           <button class="touch-btn" id="touch-left" aria-label="Mover para esquerda">◀</button>
           <button class="touch-btn" id="touch-right" aria-label="Mover para direita">▶</button>
         </div>
-        <button class="touch-btn touch-btn-jump" id="touch-jump" aria-label="Pular">▲</button>
+        <div class="touch-actions"><button class="touch-btn touch-btn-attack" id="touch-attack" aria-label="Ataque de luz">✧</button>
+        <button class="touch-btn touch-btn-jump" id="touch-jump" aria-label="Pular">▲</button></div>
       </div>
     </div>
 
@@ -177,6 +179,8 @@
   <script src="js/entities/Lumi.js"></script>
   <script src="js/world/TransformationSystem.js"></script>
   <script src="js/world/EnvironmentFX.js"></script>
+  <script src="js/entities/Enemy.js"></script>
+  <script src="js/engine/Combat.js"></script>
   <script src="js/world/LevelData.js"></script>
   <script src="js/world/WorldRenderer.js"></script>
   <script src="js/ui/HUD.js"></script>

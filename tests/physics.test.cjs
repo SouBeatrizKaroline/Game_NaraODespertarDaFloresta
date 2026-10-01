@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const context=vm.createContext({window:{LumiGame:{}},Math,document:{}});
-for(const file of ['engine/Physics','entities/Lumi','entities/Star','entities/Checkpoint','world/LevelData'])
+for(const file of ['engine/Physics','entities/Lumi','entities/Star','entities/Checkpoint','entities/Enemy','engine/Combat','world/LevelData'])
   vm.runInContext(fs.readFileSync(`js/${file}.js`,'utf8'),context);
 const {Physics,Lumi,Star,LevelData}=context.window.LumiGame;
 function step(p,level,input,dt=1/120){

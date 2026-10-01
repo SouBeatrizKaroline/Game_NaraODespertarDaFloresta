@@ -36,3 +36,8 @@ button:focus-visible,input:focus-visible{outline:3px solid #ffe6a4!important;out
 
 .switch input{position:absolute;inset:0;width:100%;height:100%;margin:0;z-index:2;cursor:pointer;}
 .switch:focus-within .slider{outline:3px solid #ffe6a4;outline-offset:4px;}
+
+.hud-health{display:flex;gap:5px;color:#eda6b0;font-size:21px;text-shadow:0 0 8px #e77eaa44}.hud-health .empty{color:#545564;text-shadow:none}.touch-actions{display:flex;align-items:center;gap:16px}.touch-btn-attack{border-color:#b3f4d5!important;background:#2c625cbb!important;font-size:34px!important}
+@media(max-width:550px){.hud-health{position:absolute;top:64px;left:14px;font-size:18px}.hud-progress-wrapper{top:92px;width:92px}.touch-actions{gap:8px}.touch-actions .touch-btn{width:64px;height:64px}.touch-dpad .touch-btn{width:60px;height:60px}#game-hud{padding:10px}}
+
+.touch-btn{pointer-events:auto;}

@@ -2,7 +2,7 @@ window.LumiGame=window.LumiGame||{};
 class WorldRenderer {
  constructor(canvas){this.canvas=canvas;}
  ellipse(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill();}
- render(level,player,camera,fx,transform,particles,time=0){
+ render(level,player,camera,fx,transform,particles,time=0,combat){
   const c=this.canvas.getContext('2d'),w=this.canvas.width,h=this.canvas.height,light=transform.progress;
   const sky=c.createLinearGradient(0,0,0,h);sky.addColorStop(0,level.chapter.sky);sky.addColorStop(1,light>.5?'#365e67':'#1c3542');c.fillStyle=sky;c.fillRect(0,0,w,h);
   const moonX=w*.8-camera.x*.04;this.ellipse(c,moonX,96,44,44,'#f1e9c9');this.ellipse(c,moonX-12,86,40,40,level.chapter.sky);
@@ -31,7 +31,7 @@ class WorldRenderer {
   for(let i=0;i<14;i++){const x=150+i*153;if(!level.platforms.some(p=>!p.isOneWay&&x>=p.x&&x<p.x+p.width))continue;this.ellipse(c,x,494,6,3,'#537c6d');if(light>.2)this.ellipse(c,x,487,4,4,level.chapter.color);}
   if(level.index===3){for(const x of [560,1450]){c.fillStyle='#596265';c.fillRect(x,370,24,130);c.fillRect(x+60,350,24,150);c.fillRect(x-6,350,96,20);c.strokeStyle='#86a98e';c.beginPath();c.moveTo(x+15,500);c.quadraticCurveTo(x+50,400,x+70,350);c.stroke();}}
   for(const m of level.mushrooms){const squish=m.squishTime>0?Math.sin(m.squishTime/.35*Math.PI)*6:0;c.fillStyle='#a6bbc0';c.fillRect(m.x+24,m.y+5,10,18);this.ellipse(c,m.x+29,m.y+7+squish,30,14-squish*.5,m.color);c.fillStyle='#eae4ff';for(let j=0;j<3;j++)this.ellipse(c,m.x+12+j*16,m.y+5,3,2,'#eae4ff');}
-  const gate=level.gate,ready=level.mainStars.every(s=>s.collected);
+  const gate=level.gate,ready=level.mainStars.every(s=>s.collected)&&!level.enemies.some(e=>e.type==='boss'&&!e.defeated);
   if(level.index===4){
    const tree=level.ancestralTree,awake=tree.isAwakened;
    c.fillStyle='#4c6259';c.beginPath();c.moveTo(tree.x-60,500);c.quadraticCurveTo(tree.x-20,300,tree.x-35,170);c.lineTo(tree.x+30,150);c.quadraticCurveTo(tree.x+10,350,tree.x+70,500);c.fill();
@@ -45,10 +45,11 @@ class WorldRenderer {
   c.restore();
   for(const s of [...level.mainStars,...level.secretStars])s.draw(c,view);
   for(const cp of level.checkpoints)cp.draw(c,view);
-  player.draw(c,view);particles.draw(c,view);
+  for(const enemy of level.enemies)enemy.draw(c,view,window.LumiGame.instance?.reducedMotion);
+  combat?.draw(c,view);player.draw(c,view);particles.draw(c,view);
   // A silent compass points to the closest missing fragment, then to the gate.
   const remaining=level.mainStars.filter(s=>!s.collected).sort((a,b)=>Math.abs(a.x-player.x)-Math.abs(b.x-player.x));
-  const target=remaining[0]||gate;const tx=target.x-view.x,ty=(target.y||440)-view.y;
+  const target=remaining[0]||level.enemies.find(e=>e.type==='boss'&&!e.defeated)||gate;const tx=target.x-view.x,ty=(target.y||440)-view.y;
   if(tx<35||tx>w-35||ty<65){c.save();c.translate(Math.max(28,Math.min(w-28,tx)),Math.max(78,Math.min(440,ty)));c.rotate(Math.atan2(ty-270,tx-w/2));c.strokeStyle='#ffe39b';c.lineWidth=2;c.beginPath();c.moveTo(-8,-6);c.lineTo(0,0);c.lineTo(-8,6);c.stroke();c.restore();}
   for(let i=0;i<18;i++){const x=(i*97.4+Math.sin(time*.7+i)*12)%960,y=230+(i*33.8)%260;this.ellipse(c,x,y,1.4,1.4,'#bbefd4');}
  }

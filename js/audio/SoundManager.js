@@ -13,17 +13,17 @@ class SoundManager {
     this.sfxVolume = 0.75;
     this.isMuted = false;
     this.initialized = false;
-    
+
     // Music state
     this.isPlayingMusic = false;
     this.musicTimer = null;
     this.musicGain = null;
     this.sfxGain = null;
     this.masterGain = null;
-    
+
     // Transformation stage affects music richness (0 to 4)
-    this.transformationStage = 0; 
-    
+    this.transformationStage = 0;
+
     // Scales: Ethereal Lydian / Pentatonic in D Major (D, E, F#, G#, A, B, C#)
     this.baseFrequencies = [
       146.83, // D3
@@ -50,19 +50,19 @@ class SoundManager {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
       this.ctx = new AudioContext();
-      
+
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
-      
+
       this.musicGain = this.ctx.createGain();
       this.musicGain.gain.setValueAtTime(this.musicVolume, this.ctx.currentTime);
       this.musicGain.connect(this.masterGain);
-      
+
       this.sfxGain = this.ctx.createGain();
       this.sfxGain.gain.setValueAtTime(this.sfxVolume, this.ctx.currentTime);
       this.sfxGain.connect(this.masterGain);
-      
+
       this.initialized = true;
       this.startAmbientMusic();
     } catch (e) {
@@ -113,21 +113,21 @@ class SoundManager {
   startAmbientMusic() {
     if (!this.ctx || this.isPlayingMusic) return;
     this.isPlayingMusic = true;
-    
+
     // Play warm background chord pad
     this.schedulePadNote();
-    
+
     // Play gentle random melody notes on celesta/kalimba
     this.scheduleMelodyNote();
   }
 
   schedulePadNote() {
     if (!this.isPlayingMusic || !this.ctx) return;
-    
+
     const now = this.ctx.currentTime;
     const padChordRoot = [146.83, 164.81, 185.00, 220.00][Math.floor(Math.random() * 4)];
     const freqs = [padChordRoot, padChordRoot * 1.5, padChordRoot * 2.0];
-    
+
     // Add harmonic fifth or octave depending on progress
     if (this.transformationStage >= 2) freqs.push(padChordRoot * 2.5);
     if (this.transformationStage >= 3) freqs.push(padChordRoot * 3.0);
@@ -377,6 +377,15 @@ class SoundManager {
     osc.stop(now + 0.32);
   }
 
+  playAttack() { this.combatTone(620, 220, .12, 'triangle'); }
+  playHit() { this.combatTone(180, 65, .18, 'sawtooth'); }
+  combatTone(from,to,duration,type) {
+    if(!this.ctx||this.isMuted)return;
+    const now=this.ctx.currentTime,osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(from,now);osc.frequency.exponentialRampToValueAtTime(to,now+duration);
+    gain.gain.setValueAtTime(.055,now);gain.gain.exponentialRampToValueAtTime(.001,now+duration);
+    osc.connect(gain);gain.connect(this.sfxGain);osc.start(now);osc.stop(now+duration+.02);
+  }
   playTreeAwakening() {
     if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;

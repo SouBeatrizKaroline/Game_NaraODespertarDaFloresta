@@ -13,17 +13,18 @@ class Input {
     this.jump = false;
     this.jumpPressed = false;
     this.interactPressed = false;
-    
+
     // Internal key states
     this.keys = {};
     this.prevKeys = {};
-    
+
     // Touch state
     this.touchLeft = false;
     this.touchRight = false;
     this.touchJump = false;
     this.touchJumpPressed = false;
-    
+    this.touchAttackPressed = false;
+
     this.initKeyboard();
     this.checkTouchSupport();
   }
@@ -76,6 +77,7 @@ class Input {
       btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);btn.addEventListener('lostpointercapture',release);
     };
 
+    setupBtn(document.getElementById('touch-attack'),()=>{this.touchAttackPressed=true;},()=>{});
     setupBtn(
       btnLeft,
       () => { this.touchLeft = true; },
@@ -102,7 +104,7 @@ class Input {
 
   reset() {
     this.keys={};this.prevKeys={};this.left=this.right=this.jump=this.jumpPressed=false;
-    this.touchLeft=this.touchRight=this.touchJump=this.touchJumpPressed=false;
+    this.touchLeft=this.touchRight=this.touchJump=this.touchJumpPressed=this.touchAttackPressed=this.attackPressed=false;
     document.querySelectorAll('.touch-btn.active').forEach(b=>b.classList.remove('active'));
   }
   update() {
@@ -128,6 +130,9 @@ class Input {
     const prevInteract = !!(this.prevKeys['KeyE'] || this.prevKeys['Enter']);
     this.interactPressed = (kInteract && !prevInteract);
 
+    const attack=!!(this.keys.KeyF||this.keys.KeyJ);
+    this.attackPressed=(attack&&!this.prevKeys.KeyF&&!this.prevKeys.KeyJ)||this.touchAttackPressed;
+    this.touchAttackPressed=false;
     // Save previous
     this.prevKeys = { ...this.keys };
   }
