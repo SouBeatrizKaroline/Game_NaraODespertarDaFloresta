@@ -32,7 +32,7 @@ class Star {
   }
 
   update(dt, time) {
-    if (this.collected) return;
+    if (this.collected && !this.isDisappearing) return;
 
     if (this.isDisappearing) {
       this.disappearTimer += dt;
@@ -55,6 +55,7 @@ class Star {
 
   collect(particleSystem, soundManager) {
     if (this.collected || this.isDisappearing) return;
+    this.collected = true;
     this.isDisappearing = true;
     this.disappearTimer = 0;
 
@@ -75,7 +76,7 @@ class Star {
   }
 
   draw(ctx, camera) {
-    if (this.collected) return;
+    if (this.collected && !this.isDisappearing) return;
 
     const screenX = this.x + this.width / 2 - camera.x;
     const screenY = this.y + this.height / 2 - camera.y;

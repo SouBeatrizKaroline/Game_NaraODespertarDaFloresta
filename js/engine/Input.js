@@ -42,6 +42,7 @@ class Input {
         window.LumiGame.instance.sound.resumeIfNeeded();
       }
 
+      if(e.target.closest('button,input,select,textarea') || window.LumiGame.instance?.state !== 'playing' || window.LumiGame.instance?.settingsModal?.isOpen)return;
       const code = e.code;
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(code)) {
         e.preventDefault();
@@ -66,27 +67,13 @@ class Input {
   bindTouchButtons(btnLeft, btnRight, btnJump) {
     if (!btnLeft || !btnRight || !btnJump) return;
 
-    const setupBtn = (btn, onDown, onUp) => {
-      const handleStart = (e) => {
-        e.preventDefault();
-        if (window.LumiGame.instance && window.LumiGame.instance.sound) {
-          window.LumiGame.instance.sound.resumeIfNeeded();
-        }
-        btn.classList.add('active');
-        onDown();
-      };
-      const handleEnd = (e) => {
-        e.preventDefault();
-        btn.classList.remove('active');
-        onUp();
-      };
-
-      btn.addEventListener('touchstart', handleStart, { passive: false });
-      btn.addEventListener('touchend', handleEnd, { passive: false });
-      btn.addEventListener('touchcancel', handleEnd, { passive: false });
-      btn.addEventListener('mousedown', handleStart);
-      btn.addEventListener('mouseup', handleEnd);
-      btn.addEventListener('mouseleave', handleEnd);
+    const setupBtn=(btn,onDown,onUp)=>{
+      let pointer=null,startY=0;
+      btn.style.touchAction='none';
+      btn.addEventListener('pointerdown',e=>{if(pointer!==null)return;e.preventDefault();pointer=e.pointerId;startY=e.clientY;btn.setPointerCapture(pointer);btn.classList.add('active');window.LumiGame.instance?.sound.resumeIfNeeded();onDown();});
+      btn.addEventListener('pointermove',e=>{if(e.pointerId===pointer&&btn.id==='touch-jump'&&e.clientY-startY>22){this.keys.KeyS=true;this.touchJumpPressed=true;}});
+      const release=e=>{if(e.pointerId!==pointer)return;pointer=null;btn.classList.remove('active');this.keys.KeyS=false;onUp();};
+      btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);btn.addEventListener('lostpointercapture',release);
     };
 
     setupBtn(
@@ -113,6 +100,11 @@ class Input {
     );
   }
 
+  reset() {
+    this.keys={};this.prevKeys={};this.left=this.right=this.jump=this.jumpPressed=false;
+    this.touchLeft=this.touchRight=this.touchJump=this.touchJumpPressed=false;
+    document.querySelectorAll('.touch-btn.active').forEach(b=>b.classList.remove('active'));
+  }
   update() {
     // Resolve left/right
     const kLeft = !!(this.keys['ArrowLeft'] || this.keys['KeyA']);

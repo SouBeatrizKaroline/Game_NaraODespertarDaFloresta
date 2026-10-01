@@ -1,110 +1,12 @@
-/**
- * SettingsModal - Manages accessibility options and audio volume controls
- */
-
-window.LumiGame = window.LumiGame || {};
-
+window.LumiGame=window.LumiGame||{};
 class SettingsModal {
-  constructor(game) {
-    this.game = game;
-    this.modalEl = document.getElementById('settings-modal');
-    this.openBtn = document.getElementById('btn-settings');
-    this.closeBtn = document.getElementById('btn-close-settings');
-
-    // Controls
-    this.reduceMotionToggle = document.getElementById('toggle-reduce-motion');
-    this.screenShakeToggle = document.getElementById('toggle-screen-shake');
-    this.highContrastToggle = document.getElementById('toggle-high-contrast');
-    this.musicVolumeSlider = document.getElementById('slider-music-volume');
-    this.sfxVolumeSlider = document.getElementById('slider-sfx-volume');
-
-    this.isOpen = false;
-    this.initEvents();
-  }
-
-  initEvents() {
-    if (this.openBtn) {
-      this.openBtn.addEventListener('click', () => this.open());
-    }
-    if (this.closeBtn) {
-      this.closeBtn.addEventListener('click', () => this.close());
-    }
-
-    if (this.modalEl) {
-      this.modalEl.addEventListener('click', (e) => {
-        if (e.target === this.modalEl) this.close();
-      });
-    }
-
-    // Reduce Motion
-    if (this.reduceMotionToggle) {
-      this.reduceMotionToggle.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          document.body.classList.add('reduce-motion');
-        } else {
-          document.body.classList.remove('reduce-motion');
-        }
-      });
-    }
-
-    // Screen Shake
-    if (this.screenShakeToggle) {
-      this.screenShakeToggle.addEventListener('change', (e) => {
-        if (this.game && this.game.camera) {
-          this.game.camera.enableShake = e.target.checked;
-        }
-      });
-    }
-
-    // High Contrast
-    if (this.highContrastToggle) {
-      this.highContrastToggle.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          document.body.classList.add('high-contrast');
-        } else {
-          document.body.classList.remove('high-contrast');
-        }
-      });
-    }
-
-    // Music Volume
-    if (this.musicVolumeSlider) {
-      this.musicVolumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        if (this.game && this.game.sound) {
-          this.game.sound.setMusicVolume(val);
-        }
-      });
-    }
-
-    // SFX Volume
-    if (this.sfxVolumeSlider) {
-      this.sfxVolumeSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        if (this.game && this.game.sound) {
-          this.game.sound.setSfxVolume(val);
-        }
-      });
-    }
-
-    // Keyboard shortcut (Escape to toggle)
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Escape') {
-        if (this.isOpen) this.close();
-        else this.open();
-      }
-    });
-  }
-
-  open() {
-    this.isOpen = true;
-    if (this.modalEl) this.modalEl.classList.add('open');
-  }
-
-  close() {
-    this.isOpen = false;
-    if (this.modalEl) this.modalEl.classList.remove('open');
-  }
+ constructor(game){this.game=game;this.modalEl=document.getElementById('settings-modal');this.isOpen=false;this.preferences={reduce:game.reducedMotion,shake:true,contrast:false,music:.55,sfx:.75};try{const p=JSON.parse(localStorage.getItem('nara-settings-v1'));if(p&&typeof p==='object')for(const key of Object.keys(this.preferences)){if(typeof p[key]===typeof this.preferences[key])this.preferences[key]=typeof p[key]==='number'?Math.max(0,Math.min(1,p[key])):p[key];}}catch{}
+  const fields={'toggle-reduce-motion':'reduce','toggle-screen-shake':'shake','toggle-high-contrast':'contrast','slider-music-volume':'music','slider-sfx-volume':'sfx'};
+  for(const [id,key] of Object.entries(fields)){const input=document.getElementById(id);if(input.type==='checkbox')input.checked=this.preferences[key];else input.value=this.preferences[key];input.addEventListener(input.type==='range'?'input':'change',()=>{this.preferences[key]=input.type==='checkbox'?input.checked:Number(input.value);this.apply();try{localStorage.setItem('nara-settings-v1',JSON.stringify(this.preferences));}catch{}});}
+  document.getElementById('btn-settings').onclick=()=>this.open();document.getElementById('btn-close-settings').onclick=()=>this.close();this.modalEl.onclick=e=>{if(e.target===this.modalEl)this.close();};this.apply();
+ }
+ apply(){const p=this.preferences;this.game.reducedMotion=p.reduce;document.body.classList.toggle('reduce-motion',p.reduce);document.body.classList.toggle('high-contrast',p.contrast);this.game.camera.enableShake=p.shake&&!p.reduce;this.game.sound.setMusicVolume(p.music);this.game.sound.setSfxVolume(p.sfx);}
+ open(){if(this.isOpen)return;this.previousFocus=document.activeElement;this.isOpen=true;this.game.input.reset();this.modalEl.inert=false;this.modalEl.classList.add('open');document.getElementById('btn-close-settings').focus();}
+ close(){this.isOpen=false;this.modalEl.classList.remove('open');this.modalEl.inert=true;this.game.input.reset();if(this.game.state==='playing')this.game.canvas.focus();else this.previousFocus?.focus();}
 }
-
-window.LumiGame.SettingsModal = SettingsModal;
+window.LumiGame.SettingsModal=SettingsModal;

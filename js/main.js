@@ -11,17 +11,11 @@ window.addEventListener('DOMContentLoaded', () => {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Internal game coordinate resolution (fixed 16:9 virtual canvas)
-    const targetAspect = 16 / 9;
-    let renderW = 960;
-    let renderH = 540;
+    const renderH=540;
+    const renderW=Math.max(360,Math.min(960,Math.round(renderH*width/Math.max(1,height))));
+    canvas.width=renderW;canvas.height=renderH;
+    if(window.LumiGame.instance?.camera)window.LumiGame.instance.camera.resize(renderW,renderH);
 
-    canvas.width = renderW;
-    canvas.height = renderH;
-
-    if (window.LumiGame.instance && window.LumiGame.instance.camera) {
-      window.LumiGame.instance.camera.resize(renderW, renderH);
-    }
   }
 
   resizeCanvas();
@@ -39,6 +33,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const isMuted = game.sound.toggleMute();
       btnSound.textContent = isMuted ? '🔇' : '🎵';
       btnSound.title = isMuted ? 'Desmutar Som' : 'Mutar Som';
+      btnSound.setAttribute('aria-pressed',String(isMuted));
+      if(game.state==='playing')game.canvas.focus();
     });
   }
 

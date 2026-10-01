@@ -1,80 +1,9 @@
-/**
- * HUD - Heads Up Display managing live counters, zone toasts, and sound/settings triggers
- */
-
-window.LumiGame = window.LumiGame || {};
-
+window.LumiGame=window.LumiGame||{};
 class HUD {
-  constructor() {
-    this.mainCounterEl = document.getElementById('hud-main-stars');
-    this.secretCounterEl = document.getElementById('hud-secret-stars');
-    this.zonePillEl = document.getElementById('hud-zone-pill');
-    this.toastEl = document.getElementById('hud-toast');
-    this.progressBarEl = document.getElementById('hud-progress-fill');
-    
-    this.mainPillEl = document.getElementById('hud-pill-main');
-    this.secretPillEl = document.getElementById('hud-pill-secret');
-
-    this.currentZone = '';
-    this.toastTimeout = null;
-    this.zoneTimeout = null;
-  }
-
-  updateCounters(mainCount, mainTotal, secretCount, secretTotal) {
-    if (this.mainCounterEl) {
-      this.mainCounterEl.textContent = `${mainCount}/${mainTotal}`;
-    }
-    if (this.secretCounterEl) {
-      this.secretCounterEl.textContent = `${secretCount}/${secretTotal}`;
-    }
-
-    // Update progress bar
-    if (this.progressBarEl) {
-      const pct = Math.min(100, Math.round((mainCount / mainTotal) * 100));
-      this.progressBarEl.style.width = `${pct}%`;
-    }
-  }
-
-  bumpMainCounter() {
-    if (!this.mainPillEl) return;
-    this.mainPillEl.classList.remove('bump');
-    void this.mainPillEl.offsetWidth; // trigger reflow
-    this.mainPillEl.classList.add('bump');
-    setTimeout(() => this.mainPillEl.classList.remove('bump'), 300);
-  }
-
-  bumpSecretCounter() {
-    if (!this.secretPillEl) return;
-    this.secretPillEl.classList.remove('bump');
-    void this.secretPillEl.offsetWidth;
-    this.secretPillEl.classList.add('bump');
-    setTimeout(() => this.secretPillEl.classList.remove('bump'), 350);
-  }
-
-  setZone(zoneName) {
-    if (this.currentZone === zoneName) return;
-    this.currentZone = zoneName;
-
-    if (!this.zonePillEl) return;
-    this.zonePillEl.textContent = zoneName;
-    this.zonePillEl.classList.add('visible');
-
-    clearTimeout(this.zoneTimeout);
-    this.zoneTimeout = setTimeout(() => {
-      this.zonePillEl.classList.remove('visible');
-    }, 3800);
-  }
-
-  showToast(message, duration = 3200) {
-    if (!this.toastEl) return;
-    this.toastEl.textContent = message;
-    this.toastEl.classList.add('active');
-
-    clearTimeout(this.toastTimeout);
-    this.toastTimeout = setTimeout(() => {
-      this.toastEl.classList.remove('active');
-    }, duration);
-  }
+ constructor(){this.mainCounterEl=document.getElementById('hud-main-stars');this.secretCounterEl=document.getElementById('hud-secret-stars');}
+ updateCounters(main,total,secret,secretTotal){this.mainCounterEl.textContent=main+'/'+total;this.secretCounterEl.textContent=secret+'/'+secretTotal;document.getElementById('hud-pill-secret').hidden=secretTotal===0;document.getElementById('hud-progress-fill').style.width=main/total*100+'%';}
+ bumpMainCounter(){this.bump('hud-pill-main');} bumpSecretCounter(){this.bump('hud-pill-secret');}
+ bump(id){const el=document.getElementById(id);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
+ setZone(){} showToast(){} // Narrative lives only in chapter cards, never over gameplay.
 }
-
-window.LumiGame.HUD = HUD;
+window.LumiGame.HUD=HUD;

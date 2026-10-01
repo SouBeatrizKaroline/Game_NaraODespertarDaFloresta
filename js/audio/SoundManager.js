@@ -81,14 +81,14 @@ class SoundManager {
   setMusicVolume(val) {
     this.musicVolume = Math.max(0, Math.min(1, val));
     if (this.musicGain && this.ctx) {
-      this.musicGain.gain.setTargetAtTime(this.isMuted ? 0 : this.musicVolume, this.ctx.currentTime, 0.05);
+      this.musicGain.gain.setTargetAtTime(this.musicVolume, this.ctx.currentTime, 0.05);
     }
   }
 
   setSfxVolume(val) {
     this.sfxVolume = Math.max(0, Math.min(1, val));
     if (this.sfxGain && this.ctx) {
-      this.sfxGain.gain.setTargetAtTime(this.isMuted ? 0 : this.sfxVolume, this.ctx.currentTime, 0.05);
+      this.sfxGain.gain.setTargetAtTime(this.sfxVolume, this.ctx.currentTime, 0.05);
     }
   }
 

@@ -64,7 +64,7 @@ class Camera {
       // Lookahead in movement direction
       const facing = target.facing || 1;
       const targetLook = (target.vx !== 0) ? facing * this.lookaheadDist : 0;
-      this.lookahead += (targetLook - this.lookahead) * 0.04;
+      this.lookahead += (targetLook - this.lookahead) * (1 - Math.pow(0.96, dt * 60));
 
       targetX = (target.x + target.width / 2 + this.lookahead) - this.viewportWidth / 2;
       targetY = (target.y + target.height / 2) - this.viewportHeight * 0.58;
@@ -73,8 +73,9 @@ class Camera {
     }
 
     // Smooth lerp
-    this.x += (targetX - this.x) * currentLerp;
-    this.y += (targetY - this.y) * currentLerp;
+    const blend = 1 - Math.pow(1 - currentLerp, dt * 60);
+    this.x += (targetX - this.x) * blend;
+    this.y += (targetY - this.y) * blend;
 
     // Apply bounds
     const maxBoundX = Math.max(0, this.maxX - this.viewportWidth);
@@ -85,7 +86,7 @@ class Camera {
 
     // Screenshake
     if (this.shakeIntensity > 0.01) {
-      this.shakeIntensity *= this.shakeDecay;
+      this.shakeIntensity *= Math.pow(this.shakeDecay, dt * 60);
     } else {
       this.shakeIntensity = 0;
     }
